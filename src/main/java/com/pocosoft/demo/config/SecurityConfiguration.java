@@ -20,7 +20,7 @@ public class SecurityConfiguration {
 	@Bean
 	public SecurityFilterChain defaultSecurityConfigure(HttpSecurity http) throws Exception
 	{
-		http.authorizeHttpRequests().antMatchers("/login").permitAll()
+		http.csrf().disable().authorizeHttpRequests().antMatchers("/login", "/register/user").permitAll()
 		.antMatchers("/service/welcome").authenticated()
 		//.anyRequest().authenticated()
 		.and()
@@ -39,11 +39,11 @@ public class SecurityConfiguration {
 	}
 	
 	
-	
+	/*
 	@Bean
 	public UserDetailsService userDetailsService(DataSource datasource)
 	{
 		return new JdbcUserDetailsManager(datasource);
 	}
-
+*/
 }
