@@ -1,5 +1,7 @@
 package com.pocosoft.demo.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,5 +30,9 @@ public class PortalUser {
 	private String userPassword;
 	@Column(name = "USER_ROLE")
 	private String userRole;
+	@Column(name = "ACTIVE_TOKEN")
+	private String userToken;
+	@Column(name = "TOKEN_GEN_TIME")
+	private LocalDateTime tokenTime;
 
 }

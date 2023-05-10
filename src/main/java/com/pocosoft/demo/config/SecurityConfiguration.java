@@ -2,6 +2,7 @@ package com.pocosoft.demo.config;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +19,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
 	
+	 @Autowired
+	    private PortalWebAuthenticationDetailsSource authenticationDetailsSource;
+	
 	@Bean
 	public SecurityFilterChain defaultSecurityConfigure(HttpSecurity http) throws Exception
 	{
@@ -25,12 +29,14 @@ public class SecurityConfiguration {
 		.antMatchers("/service/welcome").authenticated()
 		//.anyRequest().authenticated()
 		.and()
-		.formLogin().loginPage("/login").failureUrl("/login/failed?error")
+		.formLogin().authenticationDetailsSource(authenticationDetailsSource).loginPage("/login").failureUrl("/login/failed?error")
 		.and()
 		.httpBasic();
 		
 		return http.build();
 	}
+	
+	
 	
 	
 	@Bean

@@ -7,5 +7,6 @@ import com.pocosoft.demo.model.PortalUser;
 public interface PortalUserRepository extends JpaRepository<PortalUser, Long> {
 	
 	public PortalUser findByEmail(String email);
+	public PortalUser findByUsername(String username);
 
 }
