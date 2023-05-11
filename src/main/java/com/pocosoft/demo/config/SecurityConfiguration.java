@@ -25,11 +25,11 @@ public class SecurityConfiguration {
 	@Bean
 	public SecurityFilterChain defaultSecurityConfigure(HttpSecurity http) throws Exception
 	{
-		http.csrf().disable().authorizeHttpRequests().antMatchers("/login", "/register/user").permitAll()
+		http.csrf().disable().authorizeHttpRequests().antMatchers("/login", "/register/user", "generate/otp/**").permitAll()
 		.antMatchers("/service/welcome").authenticated()
 		//.anyRequest().authenticated()
 		.and()
-		.formLogin().authenticationDetailsSource(authenticationDetailsSource).loginPage("/login").failureUrl("/login/failed?error")
+		.formLogin().authenticationDetailsSource(authenticationDetailsSource).loginPage("/login").failureUrl("/login?error=true")
 		.and()
 		.httpBasic();
 		

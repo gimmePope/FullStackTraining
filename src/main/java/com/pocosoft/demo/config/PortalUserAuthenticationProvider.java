@@ -2,7 +2,9 @@ package com.pocosoft.demo.config;
 
 
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.pocosoft.demo.model.PortalUser;
 import com.pocosoft.demo.repository.PortalUserRepository;
+import com.pocosoft.demo.util.OTPUtil;
 
 
 @Component
@@ -37,6 +40,8 @@ public class PortalUserAuthenticationProvider implements AuthenticationProvider 
 	        String otp = ((PortalWebAuthenticationDetails) authentication.getDetails()).getOneTimePassword();
 	        System.out.println("User: " + username + ", Password: " + password + ", OTP: " + otp);
 	        PortalUser userDetails = userRepository.findByUsername(username);
+	        if(userDetails == null)
+	        	 throw new BadCredentialsException("Authentication failed");
 	        if (passwordMatches(password, userDetails.getUserPassword()) && otpMatches(otp, userDetails.getUserToken(), userDetails.getTokenTime())) {
 	        	List<GrantedAuthority> roles = new ArrayList<>();
 	        	roles.add(new SimpleGrantedAuthority(userDetails.getUserRole()));
@@ -56,7 +61,21 @@ public class PortalUserAuthenticationProvider implements AuthenticationProvider 
 	
 	private boolean otpMatches(String otp, String storedOtp, LocalDateTime tokeTime) {
         // Implement OTP comparison logic
-		return otp.equals(storedOtp);
+		//boolean tokenExpired = false;
+		
+		LocalDateTime currTime = LocalDateTime.now();
+		
+	    Duration duration = Duration.between(tokeTime, currTime);
+		long seconds = duration.toSeconds();
+		System.out.println("Seconds since generated : " + seconds);
+		System.out.println("Min since generation: " + duration.toMinutes() );
+		if(seconds > (60*5))
+		{
+			System.out.println("TOKEN EXPIRED!!!!");
+			return false;
+		}
+		String otpHash = OTPUtil.hash(otp, "SHA-512");
+		return otpHash.equals(storedOtp);
     }
 
 	 private boolean passwordMatches(String rawPassword, String encodedPassword) {
