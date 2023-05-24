@@ -15,12 +15,14 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.pocosoft.demo.model.PortalUser;
+import com.pocosoft.demo.model.UserCredentials;
 import com.pocosoft.demo.repository.PortalUserRepository;
 import com.pocosoft.demo.util.OTPUtil;
 
@@ -39,17 +41,51 @@ public class PortalUserAuthenticationProvider implements AuthenticationProvider 
 	        String password = authentication.getCredentials().toString();
 	        String otp = ((PortalWebAuthenticationDetails) authentication.getDetails()).getOneTimePassword();
 	        System.out.println("User: " + username + ", Password: " + password + ", OTP: " + otp);
-	        PortalUser userDetails = userRepository.findByUsername(username);
-	        if(userDetails == null)
-	        	 throw new BadCredentialsException("Authentication failed");
-	        if (passwordMatches(password, userDetails.getUserPassword()) && otpMatches(otp, userDetails.getUserToken(), userDetails.getTokenTime())) {
+	       
+	        UserCredentials cred = new UserCredentials(username, password, otp);
+	        
+	        Object [] loginResponse = verifyUserCredentials(cred);
+	        
+	        boolean isLoginSuccessful = (Boolean) loginResponse [0]; 
+	        
+	        if (isLoginSuccessful) {
+	        	PortalUser userDetails = (PortalUser) loginResponse [2];
 	        	List<GrantedAuthority> roles = new ArrayList<>();
 	        	roles.add(new SimpleGrantedAuthority(userDetails.getUserRole()));
 	            return new UsernamePasswordAuthenticationToken(username, password, roles);
 	        }
 	        else
 	        {
-	            throw new BadCredentialsException("Authentication failed");
+	        	String errorMsg = (String) loginResponse[1];
+	            throw new BadCredentialsException(errorMsg);
+	            
+	        }
+	}
+	
+	public Object [] verifyUserCredentials(UserCredentials crendentials)
+	{
+		Object [] response = new Object[3];
+		 PortalUser userDetails = userRepository.findByUsername( crendentials.getUsername());
+	        if(userDetails == null)
+	        {
+	        	response[0] = false;
+	        	response[1] = "Username or Password invalid";
+	        	return response;
+	        }
+	        if (passwordMatches( crendentials.getPassword(), userDetails.getUserPassword()) && otpMatches( crendentials.getOtp(), userDetails.getUserToken(), userDetails.getTokenTime())) {
+	        	List<GrantedAuthority> roles = new ArrayList<>();
+	        	roles.add(new SimpleGrantedAuthority(userDetails.getUserRole()));
+	        	response[0] = true;
+	        	response[1] = "Login Successful";
+	        	response[2] = userDetails;
+	            return response;
+	        }
+	        else
+	        {
+	        	response[0] = false;
+	        	response[1] = "Username, Password or OTP invalid";
+	        	return response;
+	           
 	        }
 	}
 

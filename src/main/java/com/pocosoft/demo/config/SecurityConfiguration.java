@@ -25,7 +25,7 @@ public class SecurityConfiguration {
 	@Bean
 	public SecurityFilterChain defaultSecurityConfigure(HttpSecurity http) throws Exception
 	{
-		http.csrf().disable().authorizeHttpRequests().antMatchers("/login", "/register/user", "generate/otp/**").permitAll()
+		http.csrf().disable().authorizeHttpRequests().antMatchers("/login", "/register/user", "generate/otp/**", "/authentication/user").permitAll()
 		.antMatchers("/service/welcome").authenticated()
 		//.anyRequest().authenticated()
 		.and()

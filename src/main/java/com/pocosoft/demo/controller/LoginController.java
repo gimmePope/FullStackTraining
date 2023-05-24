@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.pocosoft.demo.config.PortalUserAuthenticationProvider;
+import com.pocosoft.demo.model.LogInResponse;
 import com.pocosoft.demo.model.PortalUser;
+import com.pocosoft.demo.model.UserCredentials;
 import com.pocosoft.demo.repository.PortalUserRepository;
 import com.pocosoft.demo.util.OTPUtil;
 
@@ -23,11 +26,39 @@ public class LoginController {
 	PortalUserRepository userRepository;
 	@Autowired
 	PasswordEncoder passwordEncoder;
+	@Autowired
+	PortalUserAuthenticationProvider authProvider;
 	
 	@GetMapping("/login")
 	public String verifyUserCredentials()
 	{
 		return "main/index";
+	}
+	
+	@PostMapping("/api/login")
+	public ResponseEntity<LogInResponse> authenticationUser(@RequestBody UserCredentials credentials)
+	{
+		Object [] authResponse = authProvider.verifyUserCredentials(credentials);
+		
+		boolean isLoggedIn = (Boolean) authResponse[0];
+		LogInResponse response = new LogInResponse(); 
+		
+		if(isLoggedIn)
+		{
+			PortalUser userInfo = (PortalUser) authResponse[2];
+			String msg = (String) authResponse[1];
+			response.setAuthenticated(isLoggedIn);
+			response.setUsername(userInfo.getUsername());
+			response.setResponseMessage(msg);	
+		}
+		else
+		{
+			String msg = (String) authResponse[1];
+			response.setAuthenticated(isLoggedIn);
+			response.setResponseMessage(msg);	
+		}
+			
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
 	@PostMapping("/register/user")
@@ -47,7 +78,7 @@ public class LoginController {
 		}
 		catch(Exception ex)
 		{
-			response.status(HttpStatus.INTERNAL_SERVER_ERROR).body("AN ERROR OCCURED TRYING TO REGISTER GIVEN USER DETAILS");
+			response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("AN ERROR OCCURED TRYING TO REGISTER GIVEN USER DETAILS");
 		}
 		return response;
 	}
