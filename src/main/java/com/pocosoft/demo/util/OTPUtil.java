@@ -12,7 +12,7 @@ public class OTPUtil {
 		String otp = "";
 		
 		for(int i =0; i < 6; i++)
-			otp = otp + rand.nextInt(0, 10);
+			otp = otp + rand.nextInt(10);
 		
 		return otp;
 		

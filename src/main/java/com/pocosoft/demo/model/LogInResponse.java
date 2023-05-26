@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LogInResponse {
 	
-	boolean isAuthenticated;
+	private String responseCode;
 	String responseMessage;
 	String username;
 	

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +36,7 @@ public class LoginController {
 		return "main/index";
 	}
 	
+	@CrossOrigin(origins = "http://localhost:5173")
 	@PostMapping("/api/login")
 	public ResponseEntity<LogInResponse> authenticationUser(@RequestBody UserCredentials credentials)
 	{
@@ -47,17 +49,17 @@ public class LoginController {
 		{
 			PortalUser userInfo = (PortalUser) authResponse[2];
 			String msg = (String) authResponse[1];
-			response.setAuthenticated(isLoggedIn);
+			response.setResponseCode("00");
 			response.setUsername(userInfo.getUsername());
 			response.setResponseMessage(msg);	
 		}
 		else
 		{
 			String msg = (String) authResponse[1];
-			response.setAuthenticated(isLoggedIn);
+			response.setResponseCode("98");
 			response.setResponseMessage(msg);	
 		}
-			
+			System.out.println(response.toString());
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	

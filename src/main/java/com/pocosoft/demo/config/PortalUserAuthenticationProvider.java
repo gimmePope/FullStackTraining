@@ -102,7 +102,7 @@ public class PortalUserAuthenticationProvider implements AuthenticationProvider 
 		LocalDateTime currTime = LocalDateTime.now();
 		
 	    Duration duration = Duration.between(tokeTime, currTime);
-		long seconds = duration.toSeconds();
+		long seconds = duration.getSeconds();
 		System.out.println("Seconds since generated : " + seconds);
 		System.out.println("Min since generation: " + duration.toMinutes() );
 		if(seconds > (60*5))
